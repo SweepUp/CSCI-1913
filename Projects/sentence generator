@@ -1,0 +1,70 @@
+class Random:
+  def __init__(self, seed):
+    self.seed = seed
+  def next(self):
+    self.seed = ((16807) * self.seed) % (2147483647)
+    return self.seed
+  def choose(self, objects):
+    return objects[self.next() % len(objects)]
+
+class Grammar:
+  def __init__(self, seed):
+    self.random = Random(seed)
+    self.rules = {}
+  def rule(self, left, right):
+    if left in self.rules:
+      self.rules[left].append(right)
+    else:
+      self.rules[left] = [right]
+  def generating(self, strings):
+    empty = ''
+    for x in strings:
+      if x in self.rules:
+        empty += self.generating(self.random.choose(self.rules[x]))
+      else:
+        empty += x + ' '
+    return empty
+  def generate(self):
+    if 'Start' in self.rules:
+      self.random.next()
+      return self.generating(self.rules['Start'][0])
+    else:
+      raise Exception("Can't generate string without a rule for 'Start'.")
+
+G = Grammar(101)  
+
+G.rule('Noun',   ('cat',))                                #  01  
+G.rule('Noun',   ('boy',))                                #  02  
+G.rule('Noun',   ('dog',))                                #  03  
+G.rule('Noun',   ('girl',))                               #  04  
+G.rule('Verb',   ('bit',))                                #  05  
+G.rule('Verb',   ('chased',))                             #  06  
+G.rule('Verb',   ('kissed',))                             #  07  
+G.rule('Phrase', ('the', 'Noun', 'Verb', 'the', 'Noun'))  #  08  
+G.rule('Story',  ('Phrase',))                             #  09  
+G.rule('Story',  ('Phrase', 'and', 'Story'))              #  10  
+G.rule('Start',  ('Story', '.'))                          #  11
+
+print(G.generate()) #the cat bit the dog .
+print(G.generate()) #the girl chased the boy .
+print(G.generate()) #the cat chased the boy and the boy kissed the cat .
+print(G.generate()) #the cat bit the dog and the dog kissed the girl and the dog chased the girl .
+
+H = Grammar(95)  
+
+H.rule('Noun',   ('shoe',))                               #  01  
+H.rule('Noun',   ('puppy',))                              #  02  
+H.rule('Noun',   ('cactus',))                             #  03  
+H.rule('Noun',   ('orange juice',))                       #  04  
+H.rule('Verb',   ('drank',))                              #  05  
+H.rule('Verb',   ('chased',))                             #  06  
+H.rule('Verb',   ('poked',))                              #  07  
+H.rule('Phrase', ('the', 'Noun', 'Verb', 'the', 'Noun'))  #  08  
+H.rule('Story',  ('Phrase',))                             #  09  
+H.rule('Story',  ('Phrase', 'and', 'Story'))              #  10  
+H.rule('Start',  ('Story', '.'))                          #  11
+
+print(H.generate()) #the puppy drank the shoe and the puppy chased the shoe .
+print(H.generate()) #the cactus poked the shoe .
+print(H.generate()) #the shoe drank the cactus .
+print(H.generate()) #the puppy chased the orange juice .
