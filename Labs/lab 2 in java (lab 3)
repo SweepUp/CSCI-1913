@@ -1,0 +1,37 @@
+public class Zillion 
+{
+	private int[] num;
+	public Zillion(int size)
+	{
+		num = new int[size];
+	}
+	
+	public void increment()
+	{
+		int i = num.length - 1;
+		while(i>=0)
+		{
+			if(num[i] == 9)
+			{
+				num[i] = 0;
+			}
+			else
+			{
+				num[i] += 1;
+				break;
+			}
+			i-=1;
+		}
+	}
+	
+	public String toString()
+	{
+		String result = "";
+		for (int x: num) 
+		{
+			result += x;
+		}
+		return result;
+	}
+	
+}
