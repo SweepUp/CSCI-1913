@@ -1,0 +1,219 @@
+import java.util.Random;
+
+final class Card
+{
+
+//  RANK NAME. Printable names of card ranks. We don't use index 0.
+
+  private static final String[] rankName =
+  {
+    "",        //   0
+    "ace",     //   1
+    "two",     //   2
+    "three",   //   3
+    "four",    //   4
+    "five",    //   5
+    "six",     //   6
+    "seven",   //   7
+    "eight",   //   8
+    "nine",    //   9
+    "ten",     //  10
+    "jack",    //  11
+    "queen",   //  12
+    "king"     //  13
+  };
+
+  private int rank;  //  Card rank, between 1 and 13.
+
+//  CARD. Constructor. Make a new CARD with a given RANK.
+
+  public Card(int rank)
+  {
+    if (1 <= rank && rank <= 13)
+    {
+      this.rank = rank;
+    }
+    else
+    {
+      throw new IllegalArgumentException("Illegal rank.");
+    }
+  }
+
+//  GET RANK. Return the RANK of this CARD.
+
+  public int getRank()
+  {
+    return rank;
+  }
+
+//  TO STRING. Return a STRING that describes this CARD, for printing only.
+
+  public String toString()
+  {
+    return rankName[rank];
+  }
+}
+
+class Deck {
+	
+	private Card [] deck;
+	private int count = 52;
+	public Deck() {
+		deck = new Card[52];
+		for (int i = 0; i <= 3; i+= 1) {
+			for (int j = 0; j <= 12; j += 1) {
+				deck[((i)*13) + j] = new Card(j+1);
+			}
+		}
+	}
+	
+	public Card deal() {
+		if (count == 0)
+			throw new IllegalStateException("No cards left to be dealt.");
+		else {
+			count -= 1;
+			return deck[count];
+		}
+	}
+	
+	public void shuffle() {
+		Random r = new Random();
+		for (int i = deck.length-1; i >= 1; i-=1) {
+			int j = Math.abs(r.nextInt()) % (i+1);
+			Card temp = deck[i];
+			deck[i] = deck[j];
+			deck[j] = temp;
+		}
+	}
+}
+
+class Pile {
+	
+	private class Layer {
+		
+		private Card card;
+		private Layer next;
+		private Layer(Card card, Layer next) {
+			this.card = card;
+			this.next = next;
+		}	
+	}
+	private Layer top;
+	
+	public Pile() {
+		top = null;
+	}
+	
+	public void add(Card card) {
+		top = new Layer(card, top);
+	}
+	
+	public Card turn() {
+		if (isEmpty()) 
+			throw new IllegalStateException("No cards in the pile.");
+		else {
+			Layer layer = new Layer(top.card, top);
+			top = top.next;
+			return layer.card;
+		}
+	}
+	
+	public boolean isEmpty() {
+		return top == null;
+	}
+}
+
+class Tableau {
+	
+	private Deck deck;
+	private Pile [] piles;
+	public Tableau() {
+		piles = new Pile[13];
+		deck = new Deck();
+		deck.shuffle();
+		for (int i = 0; i <= 12; i+=1) {
+			piles[i] = new Pile();
+			for (int j = 0; j <= 3; j+=1) {
+				piles[i].add(deck.deal());
+			}
+		}
+	}
+	
+	private boolean hasWon() {
+		for (int i = 0; i <= 12; i+=1) {
+			if (!piles[i].isEmpty())
+				return false;
+		}
+		return true;
+	}
+	
+	public void play() {
+		int p = 1;
+		while (true) {
+			if (this.piles[p-1].isEmpty()) {
+				if (this.hasWon()) {
+					System.out.println("You won!");
+					break;
+				}
+				else {
+					System.out.println("Pile "+p+" is empty. You lost!");
+					break;
+				}
+			}
+			else {
+				Card card = new Card(this.piles[p-1].turn().getRank());
+				System.out.println("Got "+card.toString()+" from pile "+p);
+				p = card.getRank();
+			}
+		}
+	}
+}
+
+class Perditio {
+	
+	public static void main(String [] args) {
+		Tableau tableau = new Tableau();
+		tableau.play();
+	}
+}
+
+//Example output
+/*Got three from pile 1
+Got three from pile 3
+Got nine from pile 3
+Got six from pile 9
+Got jack from pile 6
+Got queen from pile 11
+Got ace from pile 12
+Got king from pile 1
+Got six from pile 13
+Got jack from pile 6
+Got seven from pile 11
+Got nine from pile 7
+Got ace from pile 9
+Got ace from pile 1
+Got eight from pile 1
+Got four from pile 8
+Got queen from pile 4
+Got queen from pile 12
+Got queen from pile 12
+Got jack from pile 12
+Got seven from pile 11
+Got four from pile 7
+Got five from pile 4
+Got two from pile 5
+Got two from pile 2
+Got king from pile 2
+Got three from pile 13
+Got seven from pile 3
+Got ten from pile 7
+Got two from pile 10
+Got eight from pile 2
+Got nine from pile 8
+Got six from pile 9
+Got ten from pile 6
+Got nine from pile 10
+Got jack from pile 9
+Got four from pile 11
+Got ace from pile 4
+Pile 1 is empty. You lost!
